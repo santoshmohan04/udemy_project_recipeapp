@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  angularFirebaseAPI: "AIzaSyCE8RpxzyZaqdiuOvERrZzD8vWkOJis3Ps"
 };
