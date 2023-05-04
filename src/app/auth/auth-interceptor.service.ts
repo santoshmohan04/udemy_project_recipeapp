@@ -3,9 +3,10 @@ import {
   HttpInterceptor,
   HttpRequest,
   HttpHandler,
-  HttpParams
+  HttpParams,
+  HttpErrorResponse,
 } from '@angular/common/http';
-import { take, exhaustMap } from 'rxjs/operators';
+import { take, exhaustMap, tap } from 'rxjs/operators';
 
 import { AuthService } from './auth.service';
 
@@ -14,16 +15,27 @@ export class AuthInterceptorService implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
+    this.authService.UserDetails;
     return this.authService.user.pipe(
       take(1),
-      exhaustMap(user => {
+      exhaustMap((user) => {
+        console.log('user >>> ', user);
         if (!user) {
           return next.handle(req);
         }
         const modifiedReq = req.clone({
-          params: new HttpParams().set('auth', user.token)
+          params: new HttpParams().set('auth', user._token),
         });
-        return next.handle(modifiedReq);
+        return next.handle(modifiedReq).pipe(
+          tap({
+            next: () => {},
+            error: (err: HttpErrorResponse) => {
+              if (err.status == 401 && err.statusText == 'Unauthorized') {
+                this.authService.logout();
+              }
+            },
+          })
+        );
       })
     );
   }

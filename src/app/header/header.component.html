@@ -1,37 +1,63 @@
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-3">
   <div class="container-fluid">
-    <div class="navbar-header">
-      <a routerLink="/" class="navbar-brand">Recipe Book</a>
-    </div>
+    <a class="navbar-brand" [routerLink]="'/'">Recipe Book</a>
 
-    <div class="collapse navbar-collapse">
-      <ul class="nav navbar-nav">
-        <li routerLinkActive="active" *ngIf="isAuthenticated">
-          <a routerLink="/recipes">Recipes</a>
+    <!-- Step 3: Toggle the value of the property when the toggler button is clicked. -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      (click)="isMenuCollapsed = !isMenuCollapsed"
+    >
+      &#9776;
+    </button>
+
+    <!-- Step 2: Add the ngbCollapse directive to the element below. -->
+    <div
+      [ngbCollapse]="isMenuCollapsed"
+      class="collapse navbar-collapse"
+      *ngIf="isAuthenticated"
+    >
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item active">
+          <!-- Step 4: Close the menu when a link is clicked. -->
+          <a
+            class="nav-link"
+            [routerLink]="'/recipes'"
+            (click)="isMenuCollapsed = true"
+            >Recipes</a
+          >
         </li>
-        <li routerLinkActive="active" *ngIf="!isAuthenticated">
-          <a routerLink="/auth">Authenticate</a>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [routerLink]="'/shopping-list'"
+            (click)="isMenuCollapsed = true"
+            >Shopping List</a
+          >
         </li>
-        <li routerLinkActive="active">
-          <a routerLink="/shopping-list">Shopping List</a>
+        <li class="nav-item" ngbDropdown>
+          <a
+            class="nav-link"
+            tabindex="0"
+            ngbDropdownToggle
+            id="dataActions"
+            role="button"
+          >
+            Manage
+          </a>
+          <div
+            ngbDropdownMenu
+            aria-labelledby="dataActions"
+            class="dropdown-menu"
+          >
+            <a ngbDropdownItem (click)="onSaveData()">Save Data</a>
+            <a ngbDropdownItem (click)="onFetchData()">Fetch Data</a>
+          </div>
         </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li *ngIf="isAuthenticated">
-          <a style="cursor: pointer;" (click)="onLogout()">Logout</a>
-        </li>
-        <li class="dropdown" appDropdown *ngIf="isAuthenticated">
-          <a style="cursor: pointer;" class="dropdown-toggle" role="button"
-            >Manage <span class="caret"></span
-          ></a>
-          <ul class="dropdown-menu">
-            <li>
-              <a style="cursor: pointer;" (click)="onSaveData()">Save Data</a>
-            </li>
-            <li>
-              <a style="cursor: pointer;" (click)="onFetchData()">Fetch Data</a>
-            </li>
-          </ul>
+        <li class="nav-item">
+          <a class="nav-link" (click)="isMenuCollapsed = true; onLogout()"
+            >Logout</a
+          >
         </li>
       </ul>
     </div>
