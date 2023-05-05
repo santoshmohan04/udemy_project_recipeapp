@@ -1,10 +1,10 @@
 export class User {
   constructor(
-    public email: string,
     public id: string,
+    public email: string,
     public displayName: string,
-    public registered: boolean,
     public _token: string,
+    public registered: boolean,
     public _tokenExpirationDate: Date
   ) {}
 

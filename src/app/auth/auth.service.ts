@@ -9,13 +9,13 @@ import { User } from './user.model';
 
 export interface AuthResponseData {
   kind: string;
-  idToken: string;
+  localId: string;
   email: string;
   displayName: string;
+  idToken: string;
+  registered?: boolean;
   refreshToken: string;
   expiresIn: string;
-  localId: string;
-  registered?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,11 +50,11 @@ export class AuthService {
         catchError(this.handleError),
         tap((resData) => {
           this.handleAuthentication(
+            resData.localId,
             resData.email,
             resData.displayName,
-            resData.localId,
-            resData.registered,
             resData.idToken,
+            resData.registered,
             +resData.expiresIn
           );
         })
@@ -77,11 +77,11 @@ export class AuthService {
         catchError(this.handleError),
         tap((resData) => {
           this.handleAuthentication(
+            resData.localId,
             resData.email,
             resData.displayName,
-            resData.localId,
-            resData.registered,
             resData.idToken,
+            resData.registered,
             +resData.expiresIn
           );
         })
@@ -90,11 +90,11 @@ export class AuthService {
 
   autoLogin() {
     const userData: {
+      id: string;
       email: string;
       displayName: string;
-      id: string;
-      registered: boolean;
       _token: string;
+      registered: boolean;
       _tokenExpirationDate: string;
     } = JSON.parse(localStorage.getItem('userData'));
     if (!userData) {
@@ -102,11 +102,11 @@ export class AuthService {
     }
 
     const loadedUser = new User(
+      userData.id,
       userData.email,
       userData.displayName,
-      userData.id,
-      userData.registered,
       userData._token,
+      userData.registered,
       new Date(userData._tokenExpirationDate)
     );
 
@@ -136,20 +136,20 @@ export class AuthService {
   }
 
   private handleAuthentication(
+    userId: string,
     email: string,
     displayName: string,
-    userId: string,
-    registered: boolean,
     token: string,
+    registered: boolean,
     expiresIn: number
   ) {
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
     const user = new User(
+      userId,
       email,
       displayName,
-      userId,
-      registered,
       token,
+      registered,
       expirationDate
     );
     this.user.next(user);

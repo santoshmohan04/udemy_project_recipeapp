@@ -7,19 +7,26 @@ import { HeaderComponent } from './header/header.component';
 import { AppRoutingModule } from './app-routing.module';
 import { SharedModule } from './shared/shared.module';
 import { CoreModule } from './core.module';
-import { LoggingService } from './logging.service';
 import {
   NgbModule,
   NgbCollapseModule,
   NgbDropdownModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { AlertsComponent } from './alerts/alerts.component';
+import { ProfileComponent } from './profile/profile.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent, AlertsComponent],
+  declarations: [
+    AppComponent,
+    HeaderComponent,
+    AlertsComponent,
+    ProfileComponent,
+  ],
   imports: [
     BrowserModule,
     HttpClientModule,
+    FormsModule,
     AppRoutingModule,
     SharedModule,
     CoreModule,
@@ -28,6 +35,5 @@ import { AlertsComponent } from './alerts/alerts.component';
     NgbDropdownModule,
   ],
   bootstrap: [AppComponent],
-  // providers: [LoggingService]
 })
 export class AppModule {}
