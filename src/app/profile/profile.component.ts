@@ -18,6 +18,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   userProfileData: UsersList;
   user_details: User;
   isEditMode = false;
+  isLoading = false;
   private userSub: Subscription;
 
   constructor(
@@ -27,6 +28,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.authService.UserDetails;
     this.userSub = this.authService.user.subscribe((user) => {
       this.user_details = user;
@@ -36,8 +38,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.userProfileData = res.users.find(
           (t) => t.email === this.user_details.email
         );
+        this.isLoading = false;
       },
       error: (err: any) => {
+        this.isLoading = false;
         this.alertMsg.alertDanger(err);
       },
     });

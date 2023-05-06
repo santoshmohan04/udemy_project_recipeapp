@@ -6,8 +6,10 @@ export const environment = {
   production: false,
   angularFirebaseAPI: 'AIzaSyCE8RpxzyZaqdiuOvERrZzD8vWkOJis3Ps',
   firebaseUrl: 'https://identitytoolkit.googleapis.com/v1/',
-  firebaseDataUrl:
+  firebaseRecipesUrl:
     'https://udemy-project-6ecad-default-rtdb.firebaseio.com/recipes.json',
+  firebaseShoppingListUrl:
+    'https://udemy-project-6ecad-default-rtdb.firebaseio.com/shoppinglist.json',
 };
 
 /*
