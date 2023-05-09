@@ -1,0 +1,22 @@
+<a
+  class="list-group-item"
+  style="cursor: pointer"
+  [routerLink]="[index]"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
+  <div class="row g-0">
+    <div class="col-8">
+      <h4 class="list-group-item-heading">{{ recipe.name }}</h4>
+      <p class="list-group-item-text">{{ recipe.description }}</p>
+    </div>
+    <div class="col-4">
+      <img
+        [src]="recipe.imagePath"
+        alt="{{ recipe.name }}"
+        class="img-responsive float-end"
+        width="100"
+      />
+    </div>
+  </div>
+</a>
