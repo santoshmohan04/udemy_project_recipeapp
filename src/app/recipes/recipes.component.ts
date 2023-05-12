@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DataStorageService } from 'src/app/shared/data-storage.service';
+import { Store } from '@ngrx/store';
+import * as fromApp from '../store/app.reducer';
+import * as RecipesActions from './store/recipe.actions';
 
 @Component({
   selector: 'app-recipes',
@@ -7,9 +9,9 @@ import { DataStorageService } from 'src/app/shared/data-storage.service';
   styleUrls: ['./recipes.component.scss'],
 })
 export class RecipesComponent implements OnInit {
-  constructor(private ds: DataStorageService) {}
+  constructor(private store: Store<fromApp.AppState>) {}
 
   ngOnInit() {
-    this.ds.fetchRecipes().subscribe();
+    this.store.dispatch(new RecipesActions.FetchRecipes());
   }
 }

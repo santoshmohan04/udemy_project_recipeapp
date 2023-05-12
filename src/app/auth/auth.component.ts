@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-
-import { AuthService, AuthResponseData } from './auth.service';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
 import { AlertMessageService } from '../alerts/alertmsg.service';
+import * as fromApp from '../store/app.reducer';
+import * as AuthActions from './store/auth.actions';
 
 @Component({
   selector: 'app-auth',
@@ -80,16 +80,16 @@ import { AlertMessageService } from '../alerts/alertmsg.service';
   `,
   styleUrls: ['./auth.component.scss'],
 })
-export class AuthComponent implements OnInit {
+export class AuthComponent implements OnInit, OnDestroy {
   isLoginMode = true;
   isLoading = false;
   authForm!: FormGroup;
+  private storeSub: Subscription;
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
     private fb: FormBuilder,
-    private alertMsg: AlertMessageService
+    private alertMsg: AlertMessageService,
+    private store: Store<fromApp.AppState>
   ) {}
 
   ngOnInit(): void {
@@ -97,6 +97,13 @@ export class AuthComponent implements OnInit {
       email: [null, [Validators.required, Validators.email]],
       password: [null, [Validators.required, Validators.minLength(6)]],
       remember: [false],
+    });
+    this.storeSub = this.store.select('auth').subscribe((authState) => {
+      this.isLoading = authState.loading;
+      let error = authState.authError;
+      if (error) {
+        this.showErrorAlert(error);
+      }
     });
     const usr_details = JSON.parse(localStorage.getItem('usrdtl'));
     if (usr_details !== null || undefined) {
@@ -120,38 +127,37 @@ export class AuthComponent implements OnInit {
     const password = form.value.password;
     const isremeber = form.value.remember;
 
-    let authObs: Observable<AuthResponseData>;
+    const usr_payload = {
+      useremail: email,
+      userpswd: password,
+    };
+
+    isremeber
+      ? localStorage.setItem('usrdtl', JSON.stringify(usr_payload))
+      : localStorage.removeItem('usrdtl');
 
     this.isLoading = true;
 
     if (this.isLoginMode) {
-      authObs = this.authService.login(email, password);
+      this.store.dispatch(
+        new AuthActions.LoginStart({ email: email, password: password })
+      );
     } else {
-      authObs = this.authService.signup(email, password);
+      this.store.dispatch(
+        new AuthActions.SignupStart({ email: email, password: password })
+      );
     }
-
-    authObs.subscribe({
-      next: (resData) => {
-        const usr_payload = {
-          useremail: email,
-          userpswd: password,
-        };
-        isremeber
-          ? localStorage.setItem('usrdtl', JSON.stringify(usr_payload))
-          : localStorage.removeItem('usrdtl');
-        this.isLoading = false;
-        this.router.navigate(['/recipes']);
-      },
-      error: (errorMessage) => {
-        this.showErrorAlert(errorMessage);
-        this.isLoading = false;
-      },
-    });
 
     form.reset();
   }
 
   private showErrorAlert(message: string) {
     this.alertMsg.alertDanger(message);
+  }
+
+  ngOnDestroy() {
+    if (this.storeSub) {
+      this.storeSub.unsubscribe();
+    }
   }
 }

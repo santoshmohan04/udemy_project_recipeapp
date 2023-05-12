@@ -1,13 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  ProfileData,
-  UsersList,
-  UserprofileService,
-} from './userprofile.service';
+import { Store } from '@ngrx/store';
 import { AlertMessageService } from '../alerts/alertmsg.service';
 import { User } from '../auth/user.model';
-import { AuthService } from '../auth/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, debounceTime } from 'rxjs';
+import { UserProfile } from './profile.model';
+import * as profileActions from './store/profile.actions';
+import * as fromApp from '../store/app.reducer';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-profile',
@@ -15,56 +14,71 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  userProfileData: UsersList;
+  userProfileData: UserProfile;
   user_details: User;
   isEditMode = false;
   isLoading = false;
+  apiPayload: UserProfile;
+  profileUpdateForm: FormGroup;
   private userSub: Subscription;
+  private profileSub: Subscription;
 
   constructor(
-    private userprofile: UserprofileService,
     private alertMsg: AlertMessageService,
-    private authService: AuthService
+    private store: Store<fromApp.AppState>,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.authService.UserDetails;
-    this.userSub = this.authService.user.subscribe((user) => {
-      this.user_details = user;
+    this.userSub = this.store.select('auth').subscribe((authState) => {
+      this.user_details = authState.user;
     });
-    this.userprofile.getUserData().subscribe({
-      next: (res: ProfileData) => {
-        this.userProfileData = res.users.find(
-          (t) => t.email === this.user_details.email
-        );
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        this.isLoading = false;
-        this.alertMsg.alertDanger(err);
-      },
+    this.store.dispatch(
+      new profileActions.FetchProfile({ idToken: this.user_details._token })
+    );
+    this.profileSub = this.store
+      .select('profile')
+      .pipe(debounceTime(1000))
+      .subscribe((profileState) => {
+        this.isLoading = profileState.loading;
+        this.userProfileData = profileState.profile;
+        let error = profileState.resError;
+        if (error) {
+          this.showErrorAlert(error);
+        }
+      });
+    this.profileUpdateForm = this.fb.group({
+      name: [null, [Validators.required]],
+      photo: [null, [Validators.required]],
     });
   }
 
-  editProfile() {
-    let payload = {
-      idToken: this.authService.user.value._token,
-      displayName: this.userProfileData.displayName,
-      photoUrl: this.userProfileData.photoUrl,
-    };
-    this.userprofile.updateProfile(payload).subscribe({
-      next: (res: any) => {
-        this.userProfileData = res;
-        this.isEditMode = !this.isEditMode;
-      },
-      error: (err: any) => {
-        this.alertMsg.alertDanger(err);
-      },
+  onEdit() {
+    this.profileUpdateForm.patchValue({
+      name: this.userProfileData.displayName,
+      photo: this.userProfileData.photoUrl,
     });
+    this.isEditMode = !this.isEditMode;
+  }
+
+  editProfile() {
+    this.store.dispatch(
+      new profileActions.UpdateProfile({
+        idToken: this.user_details._token,
+        displayName: this.profileUpdateForm.value.name,
+        photoUrl: this.profileUpdateForm.value.photo,
+      })
+    );
+    this.isEditMode = !this.isEditMode;
+  }
+
+  private showErrorAlert(message: string) {
+    this.alertMsg.alertDanger(message);
   }
 
   ngOnDestroy(): void {
     this.userSub.unsubscribe();
+    this.profileSub.unsubscribe();
   }
 }

@@ -34,15 +34,20 @@
                     {{ userProfileData.displayName }}
                   </h5>
                 </div>
-                <div class="mb-3" *ngIf="isEditMode">
+                <div
+                  class="mb-3"
+                  [formGroup]="profileUpdateForm"
+                  *ngIf="isEditMode"
+                >
                   <label for="exampleFormControlInput1" class="form-label"
                     >Name</label
                   >
                   <input
-                    type="email"
+                    type="text"
                     class="form-control"
                     id="exampleFormControlInput1"
-                    [(ngModel)]="userProfileData.displayName"
+                    name="name"
+                    formControlName="name"
                   />
                 </div>
                 <p></p>
@@ -56,7 +61,7 @@
                       <button
                         type="button"
                         class="btn btn-warning mb-2"
-                        (click)="isEditMode = !isEditMode"
+                        (click)="onEdit()"
                         *ngIf="!isEditMode"
                       >
                         Edit
@@ -75,14 +80,18 @@
                   <hr class="mt-0 mb-4" />
                   <div class="row pt-1" *ngIf="isEditMode">
                     <h6>Profile Pic URL</h6>
-                    <p class="text-muted">
-                      Enter URL:
+                    <div [formGroup]="profileUpdateForm" class="text-muted">
+                      <label for="photourl" class="form-label"
+                        >Enter URL:</label
+                      >
                       <input
                         type="text"
                         class="form-control"
-                        [(ngModel)]="userProfileData.photoUrl"
+                        name="photo"
+                        id="photourl"
+                        formControlName="photo"
                       />
-                    </p>
+                    </div>
                   </div>
                   <div class="row pt-1">
                     <h6>Email</h6>
