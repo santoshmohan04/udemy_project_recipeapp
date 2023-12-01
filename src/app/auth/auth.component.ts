@@ -8,76 +8,7 @@ import * as AuthActions from './store/auth.actions';
 
 @Component({
   selector: 'app-auth',
-  template: `
-    <div class="d-flex justify-content-center">
-      <div class="card" style="width: 400px">
-        <div class="card-header bg-primary text-white text-center">
-          {{ isLoginMode ? 'Login' : 'Sign Up' }}
-        </div>
-        <div class="card-body">
-          <ng-template [ngIf]="!isLoading" [ngIfElse]="spinner">
-            <form [formGroup]="authForm" (ngSubmit)="onSubmit(authForm)">
-              <div class="mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="email"
-                  formControlName="email"
-                  placeholder="Enter email"
-                  name="email"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="pwd" class="form-label">Password:</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="pwd"
-                  formControlName="password"
-                  placeholder="Enter password"
-                  name="pswd"
-                />
-              </div>
-              <div class="form-check mb-3">
-                <label for="remember" class="form-check-label">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    name="remember"
-                    formControlName="remember"
-                  />
-                  Remember me
-                </label>
-              </div>
-              <div>
-                <button
-                  class="btn btn-primary"
-                  type="submit"
-                  [disabled]="!authForm.valid"
-                >
-                  {{ isLoginMode ? 'Login' : 'Sign Up' }}
-                </button>
-                |
-                <button
-                  class="btn btn-primary"
-                  (click)="onSwitchMode()"
-                  type="button"
-                >
-                  Switch to {{ isLoginMode ? 'Sign Up' : 'Login' }}
-                </button>
-              </div>
-            </form>
-          </ng-template>
-          <ng-template #spinner>
-            <div class="text-center">
-              <app-loading-spinner></app-loading-spinner>
-            </div>
-          </ng-template>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.scss'],
 })
 export class AuthComponent implements OnInit, OnDestroy {
